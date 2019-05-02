@@ -373,3 +373,8 @@ ASALocalRun/
 *.pubxml.user
 
 # End of https://www.gitignore.io/api/visualstudio
+
+# IDA Files:
+*.id?
+*.nam
+*.til
