@@ -361,11 +361,13 @@ int GetDirection8(int x1, int y1, int x2, int y2)
 		{ 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 		{ 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 	};
-	unsigned char trans[4][3] = { { 3, 4, 5 },
-		{ 3, 2, 1 },
-		{ 7, 0, 1 },
-		{ 7, 6, 5 } };
-	int mx, my, md;
+	unsigned char trans[4][3];
+  int mx, my, md;
+
+	trans[0][0] = 3; trans[0][1] = 4; trans[0][2] = 5;
+	trans[1][0] = 3; trans[1][1] = 2; trans[1][2] = 1;
+	trans[3][0] = 7; trans[3][1] = 6; trans[3][2] = 5;
+	trans[2][0] = 7; trans[2][1] = 0; trans[2][2] = 1;
 
 	mx = abs(x2 - x1);
 	if (mx > 15)
