@@ -1,10 +1,19 @@
 #include "diablo.h"
 
+struct CodecSignature
+{
+	DWORD checksum;
+	BYTE error; // meaning unclear
+	BYTE last_chunk_size;
+	WORD unused;
+};
+
 int codec_decode(BYTE *pbSrcDst, DWORD size, char *pszPassword)
 {
 	char buf[128];
 	char dst[20];
 	int i;
+	CodecSignature *sig;
 
 	codec_init_key(0, pszPassword);
 	if (size <= 8)
@@ -24,17 +33,18 @@ int codec_decode(BYTE *pbSrcDst, DWORD size, char *pszPassword)
 	}
 
 	memset(buf, 0, sizeof(buf));
-	if (pbSrcDst[4] > 0) {
+	sig = (CodecSignature *)pbSrcDst;
+	if (sig->error > 0) {
 		size = 0;
 		SHA1Clear();
 	} else {
 		SHA1Result(0, dst);
-		if (*(DWORD *)pbSrcDst != *(DWORD *)dst) {
+		if (sig->checksum != *(DWORD *)dst) {
 			memset(dst, 0, sizeof(dst));
 			size = 0;
 			SHA1Clear();
 		} else {
-			size += pbSrcDst[5] - 64;
+			size += sig->last_chunk_size - 64;
 			SHA1Clear();
 		}
 	}
@@ -94,6 +104,7 @@ void codec_encode(BYTE* pbSrcDst, DWORD size, int size_64, char *pszPassword)
 	char dst[20];
 	DWORD chunk;
 	WORD last_chunk;
+	CodecSignature *sig;
 
 	if (size_64 != codec_get_encoded_len(size))
 		app_fatal("Invalid encode parameters");
@@ -118,9 +129,10 @@ void codec_encode(BYTE* pbSrcDst, DWORD size, int size_64, char *pszPassword)
 	}
 	memset(buf, 0, sizeof(buf));
 	SHA1Result(0, tmp);
-	pbSrcDst[4] = 0;
-	((WORD *)pbSrcDst)[3] = 0;
-	((DWORD *)pbSrcDst)[0] = ((DWORD *)tmp)[0];
-	pbSrcDst[5] = last_chunk;
+	sig = (CodecSignature*) pbSrcDst;
+	sig->error = 0;
+	sig->unused = 0;
+	sig->checksum = ((_DWORD *)tmp)[0];
+	sig->last_chunk_size = last_chunk;
 	SHA1Clear();
 }
