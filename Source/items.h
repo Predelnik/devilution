@@ -139,6 +139,10 @@ void PutItemRecord(int nSeed, WORD wCI, int nIndex);
 
 #ifdef HELLFIRE
 extern int MaxGold;
+extern int OilLevels[10];
+extern int OilValues[10];
+extern int OilMagic[10];
+extern char OilNames[10][25];
 #endif
 
 extern BYTE ItemCAnimTbl[169];
